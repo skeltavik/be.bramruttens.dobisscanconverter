@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <!-- The '/homey.js' script must be included in your settings view to work -->
+    <script type="text/javascript" src="/homey.js" data-origin="settings"></script>
+</head>
+
+<body>
+
+    <h1 class="homey-title" data-i18n="settings.title">
+        <!-- This will be filled with the translated string with key 'settings.title'. -->
+    </h1>
+
+    <div class="homey-form-group">
+        <label class="homey-form-label" for="wsurl">WebSocket URL</label>
+        <input class="homey-form-input" id="wsurl" type="text" value="" placeholder="ws://" />
+    </div>
+
+    <button id="save" class="homey-button-primary-full">Save changes</button>
+
+    <script type="text/javascript">
+        // a method named 'onHomeyReady' must be present in your code
+        function onHomeyReady(Homey) {
+            // Tell Homey we're ready to be displayed
+            Homey.ready();
+
+            var wsurlElement = document.getElementById("wsurl");
+            var saveElement = document.getElementById("save");
+
+            Homey.get("wsurl", function (err, wsurl) {
+                if (err) return Homey.alert(err);
+                wsurlElement.value = wsurl;
+            });
+
+            saveElement.addEventListener("click", function (e) {
+                Homey.set("wsurl", wsurlElement.value, function (err) {
+                    if (err) return Homey.alert(err);
+                });
+            });
+        }
+    </script>
+</body>
+
+</html>
