@@ -9,6 +9,13 @@ class DobissDevice extends Device {
    */
   async onInit() {
     this.log('DobissDevice has been initialized');
+    this.registerCapabilityListener('onoff', this.onCapabilityOnoff.bind(this));
+  }
+
+  async onCapabilityOnoff(value, opts) {
+    const address = this.getData().address;
+    const message = JSON.stringify({ address: address, state: value ? 1 : 0 });
+    this.homey.app.ws.send(message);
   }
 
   /**
