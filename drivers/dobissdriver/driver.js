@@ -17,18 +17,31 @@ class DobissDriver extends Driver {
    * This should return an array with the data of devices that are available for pairing.
    */
   async onPairListDevices() {
-    return [
-      // Example device data, note that `store` is optional
-      // {
-      //   name: 'My Device',
-      //   data: {
-      //     id: 'my-device',
-      //   },
-      //   store: {
-      //     address: '127.0.0.1',
-      //   },
-      // },
-    ];
+    return new Promise((resolve, reject) => {
+      // Send a message to the CAN2WS server to get the list of lights.
+      this.homey.app.ws.send(JSON.stringify({ command: 'get_lights' }));
+
+      // Set up a message listener to handle the response.
+      this.homey.app.ws.on('message', function incoming(data) {
+        const response = JSON.parse(data);
+
+        // Check if the response contains the list of lights.
+        if (response.command === 'get_lights' && response.lights) {
+          // Convert the list of lights to the format expected by Homey.
+          const devices = response.lights.map(light => ({
+            name: light.name,
+            data: {
+              id: light.id,
+              address: light.address,
+            },
+          }));
+
+          resolve(devices);
+        } else {
+          reject(new Error('Failed to get the list of lights'));
+        }
+      });
+    });
   }
 
 }
