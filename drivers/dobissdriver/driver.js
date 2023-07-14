@@ -1,46 +1,46 @@
 'use strict';
 
-const { Driver } = require('homey');
+const Homey = require('homey');
+const WebSocket = require('ws');
 
-class DobissDriver extends Driver {
+class DobissDriver extends Homey.Driver {
 
-  /**
-   * onInit is called when the driver is initialized.
-   */
-  async onInit() {
-    this.log('DobissDriver has been initialized');
+  onInit() {
+    this.log('DobissDriver has been inited');
   }
 
-  /**
-   * onPairListDevices is called when a user is adding a device
-   * and the 'list_devices' view is called.
-   * This should return an array with the data of devices that are available for pairing.
-   */
   async onPairListDevices() {
     return new Promise((resolve, reject) => {
-      // Send a message to the CAN2WS server to get the list of lights.
-      this.homey.app.ws.send(JSON.stringify({ command: 'get_lights' }));
+      // Check if the WebSocket connection is open.
+      if (this.homey.app.ws && this.homey.app.ws.readyState === WebSocket.OPEN) {
+        // Send a message to the CAN2WS server to get the list of lights.
+        this.homey.app.ws.send(JSON.stringify({ command: 'get_lights' }));
 
-      // Set up a message listener to handle the response.
-      this.homey.app.ws.on('message', function incoming(data) {
-        const response = JSON.parse(data);
+        const devices = [];
 
-        // Check if the response contains the list of lights.
-        if (response.command === 'get_lights' && response.lights) {
-          // Convert the list of lights to the format expected by Homey.
-          const devices = response.lights.map(light => ({
-            name: light.name,
-            data: {
-              id: light.id,
-              address: light.address,
-            },
-          }));
+        // Set up a message listener to handle the response.
+        this.homey.app.ws.on('message', (data) => {
+          const response = JSON.parse(data);
 
-          resolve(devices);
-        } else {
-          reject(new Error('Failed to get the list of lights'));
-        }
-      });
+          // Check if the response is a light object.
+          if (response.name && response.address) {
+            // Convert the light to the format expected by Homey.
+            const device = {
+              name: response.name,
+              data: {
+                id: response.address,
+                address: response.address,
+              },
+            };
+            devices.push(device);
+          }
+        });
+
+        // Resolve the promise after a timeout.
+        setTimeout(() => resolve(devices), 5000); // 5 seconds
+      } else {
+        reject(new Error('WebSocket connection is not open'));
+      }
     });
   }
 

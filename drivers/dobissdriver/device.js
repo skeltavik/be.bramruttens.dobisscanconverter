@@ -1,56 +1,73 @@
 'use strict';
 
-const { Device } = require('homey');
+const Homey = require('homey');
+const WebSocket = require('ws');
 
-class DobissDevice extends Device {
+class DobissDevice extends Homey.Device {
 
-  /**
-   * onInit is called when the device is initialized.
-   */
   async onInit() {
-    this.log('DobissDevice has been initialized');
-    this.registerCapabilityListener('onoff', this.onCapabilityOnoff.bind(this));
+    this.log('DobissDevice has been inited');
+    this.registerCapabilityListener('onoff', this.onCapabilityOnoff);
+
+    // Set up a message listener to handle all messages from the WebSocket.
+    this.homey.app.ws.on('message', this.onMessage);
+
+    // Get the initial state of the light.
+    this.getLightState();
   }
 
-  async onCapabilityOnoff(value, opts) {
-    const address = this.getData().address;
-    const message = JSON.stringify({ address: address, state: value ? 1 : 0 });
-    this.homey.app.ws.send(message);
+  onMessage = (data) => {
+    const response = JSON.parse(data);
+    const { address } = this.getData();
+
+    // Check if the response is for this light.
+    if (response.address === address) {
+      // Update the state of the light in Homey.
+      this.setCapabilityValue('onoff', response.state === 1);
+    }
   }
 
-  /**
-   * onAdded is called when the user adds the device, called just after pairing.
-   */
+  onCapabilityOnoff = async (value, opts) => {
+    const { address } = this.getData();
+    // Check if the WebSocket connection is open.
+    if (this.homey.app.ws && this.homey.app.ws.readyState === WebSocket.OPEN) {
+      const message = JSON.stringify({ address, state: value ? 1 : 0 });
+      this.homey.app.ws.send(message);
+    } else {
+      throw new Error('WebSocket connection is not open');
+    }
+  }
+
+  async getLightState() {
+    const { address } = this.getData();
+    // Check if the WebSocket connection is open.
+    if (this.homey.app.ws && this.homey.app.ws.readyState === WebSocket.OPEN) {
+      const message = JSON.stringify({ command: 'get_light_state', address });
+      this.homey.app.ws.send(message);
+    } else {
+      throw new Error('WebSocket connection is not open');
+    }
+  }
+
   async onAdded() {
     this.log('DobissDevice has been added');
   }
 
-  /**
-   * onSettings is called when the user updates the device's settings.
-   * @param {object} event the onSettings event data
-   * @param {object} event.oldSettings The old settings object
-   * @param {object} event.newSettings The new settings object
-   * @param {string[]} event.changedKeys An array of keys changed since the previous version
-   * @returns {Promise<string|void>} return a custom message that will be displayed
-   */
   async onSettings({ oldSettings, newSettings, changedKeys }) {
     this.log('DobissDevice settings where changed');
+    if (changedKeys.includes('address')) {
+      const { address } = newSettings;
+      this.setData({ address });
+    }
   }
 
-  /**
-   * onRenamed is called when the user updates the device's name.
-   * This method can be used this to synchronise the name to the device.
-   * @param {string} name The new name
-   */
   async onRenamed(name) {
     this.log('DobissDevice was renamed');
   }
 
-  /**
-   * onDeleted is called when the user deleted the device.
-   */
   async onDeleted() {
     this.log('DobissDevice has been deleted');
+    this.homey.app.ws.off('message', this.onMessage);
   }
 
 }
