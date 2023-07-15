@@ -22,6 +22,8 @@ class DobissApp extends Homey.App {
 
     this.ws.on('close', () => {
       this.log('disconnected from CAN2WS server');
+      // Reconnect after a delay.
+      setTimeout(() => this.connectToWebSocketServer(wsurl), 3000);
     });
 
     this.ws.on('message', (data) => {
