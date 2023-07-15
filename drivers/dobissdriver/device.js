@@ -23,7 +23,7 @@ class DobissDevice extends Homey.Device {
     // Start polling for the state of the light every second.
     this.pollingInterval = setInterval(() => {
       this.getLightState();
-    }, 1000);
+    }, 2000);
   }
 
   async onCapabilityOnOff(value, opts) {
