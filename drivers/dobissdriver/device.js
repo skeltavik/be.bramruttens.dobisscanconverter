@@ -6,45 +6,24 @@ const WebSocket = require('ws');
 class DobissDevice extends Homey.Device {
 
   async onInit() {
+    this.log('DobissDevice has been initialized');
+
     // Listen for the lightState event.
     this.homey.app.on(`lightState:${this.getData().id}`, (state) => {
       // Update the state of the light.
       this.setCapabilityValue('onoff', state === 1);
-
-      // Set up a capability listener for the 'onoff' capability.
-      this.registerCapabilityListener('onoff', this.onCapabilityOnOff.bind(this));
     });
+
+    // Set up a capability listener for the 'onoff' capability.
+    this.registerCapabilityListener('onoff', this.onCapabilityOnOff.bind(this));
   }
 
-  onMessage = (data) => {
-    const response = JSON.parse(data);
-    const { address } = this.getData();
+  async onCapabilityOnOff(value, opts) {
+    // This function gets called when the 'onoff' capability changes.
+    // The 'value' parameter is the new state of the capability.
+    // The 'opts' parameter is an object with additional options.
 
-    // Check if the response is for this light.
-    if (response.address === address) {
-      // Update the state of the light in Homey.
-      this.setCapabilityValue('onoff', response.state === 1);
-    }
-  }
-
-  onAllLightStates = (lights) => {
-    this.log('onAllLightStates called'); // Add this log
-
-    const { address } = this.getData();
-
-    // Find the light data for this device.
-    const light = lights.find((light) => light.address === address);
-
-    if (light) {
-      // Update the state of the light in Homey.
-      this.log('Updating state for light:', light);
-      this.setCapabilityValue('onoff', light.state === 1);
-    } else {
-      this.log('No light data found for this device');
-    }
-  }
-
-  onCapabilityOnoff = async (value, opts) => {
+    // You can put your code to handle the change here. For example, you might want to send a command to your CAN to WebSocket server to change the state of the light.
     const { address } = this.getData();
     if (this.homey.app.ws && this.homey.app.ws.readyState === WebSocket.OPEN) {
       const message = JSON.stringify({ address, state: value ? 1 : 0 });
