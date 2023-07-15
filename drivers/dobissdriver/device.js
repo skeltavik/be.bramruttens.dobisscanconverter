@@ -16,6 +16,9 @@ class DobissDevice extends Homey.Device {
 
     // Set up a capability listener for the 'onoff' capability.
     this.registerCapabilityListener('onoff', this.onCapabilityOnOff.bind(this));
+
+    // Request the initial state of the light.
+    this.getLightState();
   }
 
   async onCapabilityOnOff(value, opts) {
@@ -33,28 +36,13 @@ class DobissDevice extends Homey.Device {
     }
   }
 
-  async onAdded() {
-    this.log('DobissDevice has been added');
-  }
-
-  async onSettings({ oldSettings, newSettings, changedKeys }) {
-    this.log('DobissDevice settings where changed');
-    if (changedKeys.includes('address')) {
-      const { address } = newSettings;
-      this.setData({ address });
+  getLightState() {
+    // Send a get_light_state command for this light.
+    const { address } = this.getData();
+    if (this.homey.app.ws && this.homey.app.ws.readyState === WebSocket.OPEN) {
+      const message = JSON.stringify({ command: 'get_light_state', address });
+      this.homey.app.ws.send(message);
     }
-  }
-
-  async onRenamed(name) {
-    this.log('DobissDevice was renamed');
-  }
-
-  async onDeleted() {
-    this.log('DobissDevice has been deleted');
-    this.homey.app.ws.off('message', this.onMessage);
-
-    // Remove the listener for the allLightStates event.
-    this.homey.app.off('allLightStates', this.onAllLightStates);
   }
 
 }
