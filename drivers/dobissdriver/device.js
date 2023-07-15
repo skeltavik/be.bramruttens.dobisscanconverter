@@ -19,6 +19,11 @@ class DobissDevice extends Homey.Device {
 
     // Request the initial state of the light.
     this.getLightState();
+
+    // Start polling for the state of the light every second.
+    this.pollingInterval = setInterval(() => {
+      this.getLightState();
+    }, 1000);
   }
 
   async onCapabilityOnOff(value, opts) {
@@ -43,6 +48,14 @@ class DobissDevice extends Homey.Device {
       const message = JSON.stringify({ command: 'get_light_state', address });
       this.homey.app.ws.send(message);
     }
+  }
+
+  onDeleted() {
+    // This function gets called when the device is deleted.
+    // You can put your code to clean up here.
+
+    // Stop polling for the state of the light.
+    clearInterval(this.pollingInterval);
   }
 
 }
