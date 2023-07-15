@@ -14,26 +14,32 @@ class DobissApp extends Homey.App {
       return;
     }
 
-    this.ws = new WebSocket(wsurl);
+    this.connectToWebSocketServer(wsurl);
+  }
 
-    this.ws.on('open', () => {
-      this.log('connected to CAN2WS server');
+  connectToWebSocketServer(wsurl) {
+    const self = this; // Bind the outer `this` to `self`.
+
+    self.ws = new WebSocket(wsurl);
+
+    self.ws.on('open', () => {
+      self.log('connected to CAN2WS server');
     });
 
-    this.ws.on('close', () => {
-      this.log('disconnected from CAN2WS server');
+    self.ws.on('close', () => {
+      self.log('disconnected from CAN2WS server');
       // Reconnect after a delay.
-      setTimeout(() => this.connectToWebSocketServer(wsurl), 3000);
+      setTimeout(() => self.connectToWebSocketServer(wsurl), 5000);
     });
 
-    this.ws.on('message', (data) => {
-      this.log(`received: ${data}`);
+    self.ws.on('message', (data) => {
+      self.log(`received: ${data}`);
       const messages = JSON.parse(data);
       if (Array.isArray(messages)) {
-        messages.forEach((message) => {
+        messages.forEach(message => {
           if (message.address && message.state !== undefined) {
             // Emit a lightState event for the light.
-            this.emit(`lightState:${message.address}`, message.state);
+            self.emit(`lightState:${message.address}`, message.state);
           }
         });
       }
