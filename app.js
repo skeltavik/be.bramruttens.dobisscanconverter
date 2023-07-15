@@ -36,7 +36,7 @@ class DobissApp extends Homey.App {
       self.log(`received: ${data}`);
       const messages = JSON.parse(data);
       if (Array.isArray(messages)) {
-        messages.forEach(message => {
+        messages.forEach((message) => {
           if (message.address && message.state !== undefined) {
             // Emit a lightState event for the light.
             self.emit(`lightState:${message.address}`, message.state);
