@@ -35,7 +35,12 @@ class DobissApp extends Homey.App {
     this.ws.on('message', (data) => {
       this.log(`received: ${data}`);
       const message = JSON.parse(data);
-      if (message.command === 'get_lights' && message.lights) {
+      if (Array.isArray(message)) {
+        // Emit an event for each light state.
+        for (const lightState of message) {
+          this.emit(`lightState:${lightState.address}`, lightState.state);
+        }
+      } else if (message.command === 'get_lights' && message.lights) {
         this.emit('lightsList', message.lights);
       }
     });
