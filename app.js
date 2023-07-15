@@ -19,10 +19,10 @@ class DobissApp extends Homey.App {
     this.ws.on('open', () => {
       this.log('connected to CAN2WS server');
 
-      // Send a get_all_light_states command every 2 seconds.
+      // Send a get_all_light_states command every 1 seconds.
       this.intervalId = setInterval(() => {
         this.ws.send(JSON.stringify({ command: 'get_all_light_states' }));
-      }, 2000);
+      }, 1000);
     });
 
     this.ws.on('close', () => {
