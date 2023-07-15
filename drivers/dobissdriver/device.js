@@ -6,14 +6,14 @@ const WebSocket = require('ws');
 class DobissDevice extends Homey.Device {
 
   async onInit() {
-    this.log('DobissDevice has been inited');
-    this.registerCapabilityListener('onoff', this.onCapabilityOnoff);
+    // Listen for the lightState event.
+    this.homey.app.on(`lightState:${this.getData().id}`, (state) => {
+      // Update the state of the light.
+      this.setCapabilityValue('onoff', state === 1);
 
-    this.homey.app.ws.on('message', this.onMessage);
-
-    // Listen for the allLightStates event.
-    this.homey.app.on('allLightStates', this.onAllLightStates);
-    this.log('Added onAllLightStates event listener'); // Add this log
+      // Set up a capability listener for the 'onoff' capability.
+      this.registerCapabilityListener('onoff', this.onCapabilityOnOff.bind(this));
+    });
   }
 
   onMessage = (data) => {
