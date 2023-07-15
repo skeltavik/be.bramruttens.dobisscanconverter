@@ -26,10 +26,14 @@ class DobissApp extends Homey.App {
 
     this.ws.on('message', (data) => {
       this.log(`received: ${data}`);
-      const message = JSON.parse(data);
-      if (message.address && message.state !== undefined) {
-        // Emit a lightState event for the light.
-        this.emit(`lightState:${message.address}`, message.state);
+      const messages = JSON.parse(data);
+      if (Array.isArray(messages)) {
+        messages.forEach((message) => {
+          if (message.address && message.state !== undefined) {
+            // Emit a lightState event for the light.
+            this.emit(`lightState:${message.address}`, message.state);
+          }
+        });
       }
     });
   }

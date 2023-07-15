@@ -42,10 +42,9 @@ class DobissDevice extends Homey.Device {
   }
 
   getLightState() {
-    // Send a get_light_state command for this light.
-    const { address } = this.getData();
+    // Send a get_all_light_states command.
     if (this.homey.app.ws && this.homey.app.ws.readyState === WebSocket.OPEN) {
-      const message = JSON.stringify({ command: 'get_light_state', address });
+      const message = JSON.stringify({ command: 'get_all_light_states' });
       this.homey.app.ws.send(message);
     }
   }
