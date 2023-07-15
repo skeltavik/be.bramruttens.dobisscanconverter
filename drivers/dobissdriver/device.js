@@ -2,23 +2,16 @@
 
 const Homey = require('homey');
 const WebSocket = require('ws');
-const Queue = require('promise-queue');
 
 class DobissDevice extends Homey.Device {
 
   async onInit() {
     this.log('DobissDevice has been initialized');
 
-    // Create a new queue for state updates.
-    this.queue = new Queue(1, Infinity);
-
     // Listen for the lightState event.
     this.homey.app.on(`lightState:${this.getData().id}`, (state) => {
-      // Add the state update to the queue.
-      this.queue.add(() => {
-        // Update the state of the light.
-        return this.setCapabilityValue('onoff', state === 1);
-      });
+      // Update the state of the light.
+      this.setCapabilityValue('onoff', state === 1);
     });
 
     // Set up a capability listener for the 'onoff' capability.
