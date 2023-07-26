@@ -14,8 +14,9 @@ class DobissDriver extends Homey.Driver {
   }
 
   async onPairListDevices() {
-    // Fetch the configuration from the Raspberry Pi.
-    const response = await axios.get('http://192.168.1.108:8000/config.yaml');
+    // Fetch the yaml configuration
+    const yamlUrl = this.homey.settings.get('yamlUrl');
+    const response = await axios.get(yamlUrl);
     const config = yaml.load(response.data);
 
     // Convert the configuration to the format expected by Homey.

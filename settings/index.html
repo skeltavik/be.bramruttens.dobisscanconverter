@@ -17,6 +17,11 @@
         <input class="homey-form-input" id="mqttUrl" type="text" value="" placeholder="mqtt://" />
     </div>
 
+    <div class="homey-form-group">
+        <label class="homey-form-label" for="yamlUrl">YAML Config URL</label>
+        <input class="homey-form-input" id="yamlUrl" type="text" value="" placeholder="http://<ip>:<port>/config.yaml" />
+    </div>
+
     <button id="save" class="homey-button-primary-full">Save changes</button>
 
     <script type="text/javascript">
@@ -26,6 +31,7 @@
             Homey.ready();
 
             var mqttUrlElement = document.getElementById("mqttUrl");
+            var yamlUrlElement = document.getElementById("yamlUrl");
             var saveElement = document.getElementById("save");
 
             Homey.get("mqttUrl", function (err, mqttUrl) {
@@ -34,7 +40,18 @@
             });
 
             saveElement.addEventListener("click", function (e) {
-                Homey.set("mqttUrl", mqttUrlElement.value, function (err) {
+                Homey.set("yamlUrl", yamlUrlElement.value, function (err) {
+                    if (err) return Homey.alert(err);
+                });
+            });
+
+            Homey.get("yamlUrl", function (err, yamlUrl) {
+                if (err) return Homey.alert(err);
+                yamlUrlElement.value = yamlUrl;
+            });
+
+            saveElement.addEventListener("click", function (e) {
+                Homey.set("yamlUrl", yamlUrlElement.value, function (err) {
                     if (err) return Homey.alert(err);
                 });
             });
