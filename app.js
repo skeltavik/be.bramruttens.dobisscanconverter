@@ -1,48 +1,45 @@
 'use strict';
 
 const Homey = require('homey');
-const WebSocket = require('ws');
+const mqtt = require('mqtt');
 
 class DobissApp extends Homey.App {
 
   async onInit() {
     this.log('DobissApp is running');
 
-    const wsurl = this.homey.settings.get('wsurl');
-    if (!wsurl) {
-      this.error('WebSocket server address is not set in the app settings');
+    const mqttUrl = this.homey.settings.get('mqttUrl');
+    if (!mqttUrl) {
+      this.error('MQTT server address is not set in the app settings');
       return;
     }
 
-    this.connectToWebSocketServer(wsurl);
+    this.connectToMqttServer(mqttUrl);
   }
 
-  connectToWebSocketServer(wsurl) {
-    const self = this; // Bind the outer `this` to `self`.
+  connectToMqttServer(mqttUrl) {
+    const self = this;
 
-    self.ws = new WebSocket(wsurl);
+    self.mqttClient = mqtt.connect(mqttUrl);
 
-    self.ws.on('open', () => {
-      self.log('connected to CAN2WS server');
+    self.mqttClient.on('connect', () => {
+      self.log('connected to MQTT server');
+      // Subscribe to all light state topics
+      self.mqttClient.subscribe('dobiss/light/+/state');
     });
 
-    self.ws.on('close', () => {
-      self.log('disconnected from CAN2WS server');
+    self.mqttClient.on('disconnect', () => {
+      self.log('disconnected from MQTT server');
       // Reconnect after a delay.
-      setTimeout(() => self.connectToWebSocketServer(wsurl), 5000);
+      setTimeout(() => self.connectToMqttServer(mqttUrl), 5000);
     });
 
-    self.ws.on('message', (data) => {
-      self.log(`received: ${data}`);
-      const messages = JSON.parse(data);
-      if (Array.isArray(messages)) {
-        messages.forEach((message) => {
-          if (message.address && message.state !== undefined) {
-            // Emit a lightState event for the light.
-            self.emit(`lightState:${message.address}`, message.state);
-          }
-        });
-      }
+    self.mqttClient.on('message', (topic, message) => {
+      self.log(`received: ${topic} ${message}`);
+      const address = topic.split('/')[2];
+      const state = message.toString();
+      // Emit a lightState event for the light.
+      self.emit(`lightState:${address}`, state);
     });
   }
 
