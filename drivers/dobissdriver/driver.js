@@ -2,7 +2,8 @@
 
 const Homey = require('homey');
 const mqtt = require('mqtt');
-const fetch = require('node-fetch');
+const axios = require('axios');
+const yaml = require('js-yaml');
 
 class DobissDriver extends Homey.Driver {
 
@@ -14,8 +15,8 @@ class DobissDriver extends Homey.Driver {
 
   async onPairListDevices() {
     // Fetch the configuration from the Raspberry Pi.
-    const response = await fetch('http://192.168.1.108:8000/config.yaml');
-    const config = await response.json();
+    const response = await axios.get('http://192.168.1.108:8000/config.yaml');
+    const config = yaml.load(response.data);
 
     // Convert the configuration to the format expected by Homey.
     const devices = config.map((light) => ({

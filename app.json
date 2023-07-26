@@ -36,7 +36,7 @@
   "drivers": [
     {
       "name": {
-        "en": "CAN2WS Server"
+        "en": "CAN2MQTT Server"
       },
       "class": "light",
       "capabilities": [

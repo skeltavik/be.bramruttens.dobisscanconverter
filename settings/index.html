@@ -13,8 +13,8 @@
     </h1>
 
     <div class="homey-form-group">
-        <label class="homey-form-label" for="wsurl">MQTT URL</label>
-        <input class="homey-form-input" id="wsurl" type="text" value="" placeholder="mqtt://" />
+        <label class="homey-form-label" for="mqttUrl">MQTT URL</label>
+        <input class="homey-form-input" id="mqttUrl" type="text" value="" placeholder="mqtt://" />
     </div>
 
     <button id="save" class="homey-button-primary-full">Save changes</button>
@@ -25,12 +25,12 @@
             // Tell Homey we're ready to be displayed
             Homey.ready();
 
-            var wsurlElement = document.getElementById("mqttUrl");
+            var mqttUrlElement = document.getElementById("mqttUrl");
             var saveElement = document.getElementById("save");
 
-            Homey.get("wsurl", function (err, wsurl) {
+            Homey.get("mqttUrl", function (err, mqttUrl) {
                 if (err) return Homey.alert(err);
-                wsurlElement.value = wsurl;
+                mqttUrlElement.value = mqttUrl;
             });
 
             saveElement.addEventListener("click", function (e) {
