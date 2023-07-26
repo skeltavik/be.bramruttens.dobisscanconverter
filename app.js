@@ -14,33 +14,14 @@ class DobissApp extends Homey.App {
       return;
     }
 
-    this.connectToMqttServer(mqttUrl);
+    this.client = mqtt.connect(mqttUrl);
+    this.client.on('connect', this.onMqttConnect.bind(this));
   }
 
-  connectToMqttServer(mqttUrl) {
-    const self = this;
-
-    self.mqttClient = mqtt.connect(mqttUrl);
-
-    self.mqttClient.on('connect', () => {
-      self.log('connected to MQTT server');
-      // Subscribe to all light state topics
-      self.mqttClient.subscribe('dobiss/light/+/state');
-    });
-
-    self.mqttClient.on('disconnect', () => {
-      self.log('disconnected from MQTT server');
-      // Reconnect after a delay.
-      setTimeout(() => self.connectToMqttServer(mqttUrl), 5000);
-    });
-
-    self.mqttClient.on('message', (topic, message) => {
-      self.log(`received: ${topic} ${message}`);
-      const address = topic.split('/')[2];
-      const state = message.toString();
-      // Emit a lightState event for the light.
-      self.emit(`lightState:${address}`, state);
-    });
+  onMqttConnect() {
+    this.log('MQTT client is connected');
+    // Initialize all devices now that the MQTT client is connected.
+    this.drivers.forEach((driver) => driver.devices.forEach((device) => device.onInit()));
   }
 
 }
