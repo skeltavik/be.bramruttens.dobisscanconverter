@@ -10,6 +10,12 @@ class DobissDevice extends Homey.Device {
     // Get the MQTT client from the app instance.
     this.client = this.homey.app.client;
 
+    // Check if the MQTT client is available.
+    if (!this.client) {
+      this.log('MQTT client is not available');
+      return;
+    }
+
     // Listen for MQTT messages for this device.
     this.client.on('message', (topic, message) => {
       if (topic === `dobiss/light/${this.getData().address}/state`) {
@@ -26,14 +32,12 @@ class DobissDevice extends Homey.Device {
   }
 
   async onCapabilityOnOff(value, opts) {
-    // This function gets called when the 'onoff' capability changes.
-    // The 'value' parameter is the new state of the capability.
-    // The 'opts' parameter is an object with additional options.
+    // This method is called when the 'onoff' capability is changed.
+    // 'value' is the new value of the 'onoff' capability (true for on, false for off).
+    // 'opts' is an optional object with additional information.
 
-    // You can put your code to handle the change here. For example, you might want to send a command to your MQTT broker to change the state of the light.
-    const { address } = this.getData();
-    const message = value ? 'ON' : 'OFF';
-    this.client.publish(`dobiss/light/${address}/state/set`, message);
+    // Publish an MQTT message to change the state of the light.
+    this.client.publish(`dobiss/light/${this.getData().address}/state/set`, value ? 'ON' : 'OFF');
   }
 
 }
