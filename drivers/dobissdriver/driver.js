@@ -1,47 +1,32 @@
 'use strict';
 
 const Homey = require('homey');
-const WebSocket = require('ws');
+const mqtt = require('mqtt');
+const fetch = require('node-fetch');
 
 class DobissDriver extends Homey.Driver {
 
   onInit() {
     this.log('DobissDriver has been inited');
+    const mqttUrl = this.homey.settings.get('mqttUrl');
+    this.client = mqtt.connect(mqttUrl);
   }
 
   async onPairListDevices() {
-    return new Promise((resolve, reject) => {
-      // Check if the WebSocket connection is open.
-      if (this.homey.app.ws && this.homey.app.ws.readyState === WebSocket.OPEN) {
-        // Send a message to the CAN2WS server to get the list of lights.
-        this.homey.app.ws.send(JSON.stringify({ command: 'get_lights' }));
+    // Fetch the configuration from the Raspberry Pi.
+    const response = await fetch('http://192.168.1.108:8000/config.yaml');
+    const config = await response.json();
 
-        const devices = [];
+    // Convert the configuration to the format expected by Homey.
+    const devices = config.map((light) => ({
+      name: light.name,
+      data: {
+        id: light.address,
+        address: light.address,
+      },
+    }));
 
-        // Set up a message listener to handle the response.
-        this.homey.app.ws.on('message', (data) => {
-          const response = JSON.parse(data);
-
-          // Check if the response is a light object.
-          if (response.name && response.address) {
-            // Convert the light to the format expected by Homey.
-            const device = {
-              name: response.name,
-              data: {
-                id: response.address,
-                address: response.address,
-              },
-            };
-            devices.push(device);
-          }
-        });
-
-        // Resolve the promise after a timeout.
-        setTimeout(() => resolve(devices), 5000); // 5 seconds
-      } else {
-        reject(new Error('WebSocket connection is not open'));
-      }
-    });
+    return devices;
   }
 
 }
