@@ -1,4 +1,7 @@
-<img src=https://homey.app/img/pages/home/homey.webp>
+<div style="display: flex; align-items: center;">
+  <img src="https://dobiss.com/wp-content/themes/Comith-Wordpress-Theme/assets/logo_dobiss.svg" alt="Dobiss Logo" height="96">&nbsp; &nbsp; &nbsp;
+  <img src="https://homey.app/img/pages/home/homey.webp" alt="Homey Logo" height="96">
+</div>
 
 # Dobiss CAN2MQTT Converter App for Homey
 
