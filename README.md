@@ -1,6 +1,8 @@
-# Dobiss MQTT Converter for Homey
+<img src=https://homey.app/img/pages/home/homey.webp>
 
-This repository contains the code for the Dobiss MQTT Converter for Homey. This application allows you to control your Dobiss lights using the Homey smart home platform. It works in conjunction with the [Dobiss CAN to MQTT Converter](https://github.com/skeltavik/dobiss-can2mqtt) which should be running first.
+# Dobiss CAN2MQTT Converter App for Homey
+
+This repository contains the code for the Dobiss MQTT Converter for Homey. This application allows you to control your Dobiss lights using the Homey smart home platform. It works in conjunction with the [dobiss-can2mqtt](https://github.com/skeltavik/dobiss-can2mqtt) which should be running first.
 
 ## Features
 
