@@ -49,6 +49,6 @@ If you have any questions or issues, please open an issue on this repository.
 
 ## Disclaimer
 
-All logos and brand names used in this repo, belong to their respective company:
+All logos and brand names used in this repo, belong to their respective companies:
 - [Dobiss](https://dobiss.com/)
 - [Homey](https://homey.app)
