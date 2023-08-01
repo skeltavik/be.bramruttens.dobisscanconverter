@@ -46,3 +46,9 @@ Please see the `CODE_OF_CONDUCT.md` file for our code of conduct.
 ## Contact
 
 If you have any questions or issues, please open an issue on this repository.
+
+## Disclaimer
+
+All logos and brand names used in this repo, belong to their respective company:
+- [Dobiss](https://dobiss.com/)
+- [Homey](https://homey.app)
