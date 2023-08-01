@@ -13,7 +13,7 @@ This repository contains the code for the Dobiss MQTT Converter for Homey. This 
 
 ## How to Use
 
-1. Ensure the [Dobiss CAN to MQTT Converter](https://github.com/skeltavik/dobiss-can2mqtt) is running.
+1. Ensure the [dobiss-can2mqtt](https://github.com/skeltavik/dobiss-can2mqtt) is running.
 2. Clone this repository.
 3. Run the application using `homey app install`.
 4. Once the app is installed on the Homey, set the MQTT broker URL and the URL of the YAML configuration file in the Homey settings.
